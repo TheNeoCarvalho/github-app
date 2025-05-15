@@ -1,13 +1,15 @@
-import { Pressable, Text, TextInput, View } from 'react-native'
+import { Alert, Pressable, Text, TextInput, View } from 'react-native'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { Zocial } from '@expo/vector-icons';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -16,7 +18,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: 'index',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -48,59 +50,28 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const [username, setUsername] = useState("")
+  const route = useRouter()
+
+  const handleClick = async () => {
+    try {
+      await AsyncStorage.setItem('@username', username)
+      setUsername('')
+      route.replace('/(tabs)')
+    } catch (e) {
+      Alert.alert("Erro", "Erro ao salvar")
+    }
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-     
-     <View 
-      style={{ 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center'
+      <Stack screenOptions={{
+        headerShown: false
       }}>
-      <Text  
-        style={{ 
-          fontSize: 22,
-          color: '#fff',
-          marginVertical: 4
-        }}>
-          Nome do usuário
-      </Text>
-      <TextInput 
-        style={{
-          fontSize: 18,
-          backgroundColor: '#fff',
-          width: 200,
-          height: 35,
-          borderRadius: 25,
-          padding: 8
-        }} 
-      />
-      <Pressable 
-        style={{
-          backgroundColor: '#000',
-          width: 200,
-          height: 35,
-          borderRadius: 25,
-          padding: 8,
-          justifyContent: 'center', 
-          alignItems: 'center',
-          borderWidth: 2,
-          borderColor: '#fff',
-          marginVertical: 8
-        }}
-        >
-        <Text 
-          style={{
-            color: '#fff',
-            fontWeight: 'bold'
-            }}
-          >
-            Entrar
-          </Text>
-      </Pressable>
-     </View>
-
+        <Stack.Screen options={{
+          headerShown: false
+        }} name='index' />
+      </Stack>
     </ThemeProvider>
   );
 }
